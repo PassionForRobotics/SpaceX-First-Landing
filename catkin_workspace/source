@@ -1,0 +1,12 @@
+
+export GAZEBO_PLUGIN_PATH=./devel/lib:${GAZEBO_PLUGIN_PATH}
+
+export GAZEBO_MODEL_PATH=./src/gazebo_sdf_test/models:${GAZEBO_MODEL_PATH}
+
+export GAZEBO_RESOURCE_PATH=./src/gazebo_sdf_test/models:${GAZEBO_RESOURCE_PATH}
+
+source /usr/share/gazebo/setup.sh
+
+source /opt/ros/kinetic/setup.bash
+
+source ./devel/setup.bash

@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+   
+    <model name="single_thruster">
+      <include>
+        <uri>model://mini_rocket_thruster_40cms</uri>
+      </include>
+ 
+     <plugin name="thruster" filename="librocket_THRUSTER_node.so">
+      
+	</plugin>
+
+    </model>
+ 
+  </world>
+</sdf>
