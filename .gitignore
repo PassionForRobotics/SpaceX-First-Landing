@@ -1,4 +1,4 @@
-!build/
-build/*
-!devel/
-devel/*
+!catkin_workspace/build/
+catkin_workspace/build/*
+!catkin_workspace/devel/
+catkin_workspace/devel/*
