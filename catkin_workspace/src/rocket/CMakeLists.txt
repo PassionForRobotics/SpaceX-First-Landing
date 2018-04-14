@@ -62,6 +62,13 @@ target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
 )
 
+add_library(${PROJECT_NAME}_5_THRUSTERS_IMU_node SHARED plugins/five_thrusters_w_imu.cpp)
+
+target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_IMU_node
+  ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
+
+)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
