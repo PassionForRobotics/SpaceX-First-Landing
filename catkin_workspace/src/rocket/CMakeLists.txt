@@ -28,6 +28,17 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(gazebo REQUIRED)
 find_package(Threads REQUIRED)
 
+add_message_files(
+   FILES
+   ThrustCommand.msg
+ )
+
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
+
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
