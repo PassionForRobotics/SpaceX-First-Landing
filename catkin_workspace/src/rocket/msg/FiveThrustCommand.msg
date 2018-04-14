@@ -1,0 +1,6 @@
+Header header
+float32 thrust_center
+float32 thrust_side_1
+float32 thrust_side_2
+float32 thrust_side_3
+float32 thrust_side_4

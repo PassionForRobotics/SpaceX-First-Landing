@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+   
+    <model name="five_thrusters">
+      <include>
+        <uri>model://rocket_test_circular</uri>
+      </include>
+ 
+     <plugin name="thrusters" filename="librocket_5_THRUSTERS_node.so">
+	<center_thruster_link>rocket_test_circular::Center_thruster_link</center_thruster_link>     
+	<side_thruster_1_link>rocket_test_circular::Side_thruster_1_link</side_thruster_1_link>     
+	<side_thruster_2_link>rocket_test_circular::Side_thruster_2_link</side_thruster_2_link>     
+	<side_thruster_3_link>rocket_test_circular::Side_thruster_3_link</side_thruster_3_link>     
+	<side_thruster_4_link>rocket_test_circular::Side_thruster_4_link</side_thruster_4_link>     
+	 
+	 
+     </plugin>
+
+    </model>
+ 
+  </world>
+</sdf>

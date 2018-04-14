@@ -31,6 +31,7 @@ find_package(Threads REQUIRED)
 add_message_files(
    FILES
    ThrustCommand.msg
+   FiveThrustCommand.msg
  )
 
 generate_messages(
@@ -53,6 +54,14 @@ add_library(${PROJECT_NAME}_THRUSTER_node SHARED plugins/explore_force.cpp)
 target_link_libraries(${PROJECT_NAME}_THRUSTER_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
 )
+
+
+add_library(${PROJECT_NAME}_5_THRUSTERS_node SHARED plugins/five_thrusters.cpp)
+
+target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_node
+  ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
+)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
