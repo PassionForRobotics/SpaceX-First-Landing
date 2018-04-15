@@ -77,5 +77,6 @@ rostopic echo /odom
 
 Added another package from https://github.com/PassionForRobotics/ATOM_DRONE/tree/master/ros/rosatom/src/atom_esp_joy
 
+Possible ssue: module 'libevdev' : $ sudo apt-get install libevdev-dev
 
 
