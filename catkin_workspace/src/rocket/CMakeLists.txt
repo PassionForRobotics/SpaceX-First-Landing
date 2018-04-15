@@ -39,6 +39,7 @@ generate_messages(
    std_msgs
  )
 
+catkin_package(CATKIN_DEPENDS message_runtime std_msgs)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -66,9 +67,25 @@ add_library(${PROJECT_NAME}_5_THRUSTERS_IMU_node SHARED plugins/five_thrusters_w
 
 target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_IMU_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
-
 )
 
+add_library(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node SHARED plugins/five_thrusters_w_imu_joy.cpp)
+
+target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node
+  ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
+)
+
+add_dependencies(${PROJECT_NAME}_THRUSTER_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_THRUSTER_node ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_node ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_node ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node ${catkin_EXPORTED_TARGETS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
