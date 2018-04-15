@@ -5,6 +5,10 @@
     <arg name="world_name" value="$(find rocket)/worlds/five_thrusters_imu_joy_test.world"/>
     <!-- more default parameters can be changed here -->
   </include>
+
+  <!-- rosrun atom_esp_joy atom_joy_node -->
+  <node name="atom_joy_node" type="node" pkg="atom_esp_joy"  output="screen"/>
+
 </launch>
 
 <!-- at the end of the launch cmd extra_gazebo_args:="- -verbose" -->

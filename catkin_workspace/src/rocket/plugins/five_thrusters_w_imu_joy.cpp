@@ -5,7 +5,7 @@
 #include <ignition/math/Vector3.hh>
 #include <ros/ros.h>
 #include <rocket/FiveThrustCommand.h>
-
+#include <atom_esp_joy/joydata.h>
 
 #include <boost/bind.hpp>
 #include <gazebo/common/common.hh>
@@ -40,7 +40,20 @@ namespace gazebo
       this->addaccel_side_2 = this->five_thrusts_msg.thrust_side_2;
       this->addaccel_side_3 = this->five_thrusts_msg.thrust_side_3;
       this->addaccel_side_4 = this->five_thrusts_msg.thrust_side_4;   
-      ROS_INFO("msg received!");
+      ROS_INFO("5 thrusts msg received!");
+    }
+
+    private: void joystate_cb(const atom_esp_joy::joydata::ConstPtr& _joy_data_msg)
+    {
+	this->joy_data = *_joy_data_msg;
+        this->addaccel_center = this->joy_data.S * 2.0;
+        
+      this->addaccel_side_1 = this->joy_data.X;
+      this->addaccel_side_2 = this->joy_data.Y;
+      this->addaccel_side_3 = this->joy_data.Y;
+      this->addaccel_side_4 = this->joy_data.X;   
+    
+	ROS_INFO_THROTTLE(5,"Joy msg received! %f %f", (float)this->joy_data.S, this->addaccel_center);
     }
 
     private: void modelstates_cb(const gazebo_msgs::ModelStates::ConstPtr& msg)
@@ -59,7 +72,7 @@ namespace gazebo
 
 	if(pos >= s.size()) 
 	{ 
-    		ROS_WARN_THROTTLE(5,"body not found");
+    		ROS_WARN_THROTTLE(10,"body not found");
 	}
 	else
 	{
@@ -78,7 +91,7 @@ namespace gazebo
 		this->rocket_info_pub.publish(odom);
 		ros::spinOnce();  // Again 
 
-		ROS_INFO_THROTTLE(5,"body found %s", s[pos].c_str());
+		ROS_INFO_THROTTLE(10,"body found %s", s[pos].c_str());
 	}
 
     }
@@ -150,7 +163,9 @@ namespace gazebo
       five_thrusts_command_sub = this->nh_.subscribe("rocket_joy_five_thrusts_commander_node", 100, &fivethrustersimujoy::five_thrusts_command_data_cb, this); 
 
       model_states_sub = this->nh_.subscribe("/gazebo/model_states",100, &fivethrustersimujoy::modelstates_cb, this);
-
+      
+      joy_state_sub = this->nh_.subscribe("/atom_joydata",100, &fivethrustersimujoy::joystate_cb, this);
+      
       rocket_info_pub = this->nh_.advertise<nav_msgs::Odometry>("/odom", 100);
       
       // Listen to the update event. This event is broadcast every
@@ -172,13 +187,14 @@ namespace gazebo
     public: void OnUpdate()
     {
       ros::spinOnce();
-      ROS_INFO_THROTTLE(5,"THRUSTER UPDATE!!");
+      ROS_INFO_THROTTLE(10,"THRUSTER UPDATE!!");
 
       if( (NULL!=center_link) && (NULL!=side_1_link) && (NULL!=side_2_link) && (NULL!=side_3_link) && (NULL!=side_4_link) )
       {      
 
+		//this->joy_data->X  , Y, Z, S, buttons
 
-		ROS_DEBUG_THROTTLE(5,"CONTINUOUS THRUSTS ARE BEING APPLIED!!");
+		ROS_DEBUG_THROTTLE(10,"CONTINUOUS THRUSTS ARE BEING APPLIED!!");
 		this->center_link->AddRelativeForce(ignition::math::Vector3d(0, 0
 		    , this->center_link->GetInertial()->GetMass()*addaccel_center)); 
 
@@ -214,9 +230,11 @@ namespace gazebo
     private: double addaccel_center, addaccel_side_1, addaccel_side_2, addaccel_side_3, addaccel_side_4; 
     // value to given by external callers
 
+    private: atom_esp_joy::joydata joy_data;
+
     private: rocket::FiveThrustCommand five_thrusts_msg;
     private: ros::NodeHandle nh_;
-    private: ros::Subscriber five_thrusts_command_sub, model_states_sub;
+    private: ros::Subscriber five_thrusts_command_sub, model_states_sub, joy_state_sub;
     private: ros::Publisher rocket_info_pub;
 
     // Pointer to the update event connection

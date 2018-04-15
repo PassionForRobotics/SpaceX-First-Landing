@@ -219,8 +219,11 @@ int main(int argc, char **argv)
 
     bool s = es.Initialize();
     ROS_INFO("Waiting for js plugin ... ");
-    while (es.GetNumberConnected() < 1);
-    ROS_DEBUG("RUNNING NOW...");
+    while (es.GetNumberConnected() < 1)
+    {
+	ROS_INFO_THROTTLE(5,"joy waiting ...");
+    }
+    ROS_INFO("RUNNING NOW...");
 
    //joyserrun.Start();
   /**
@@ -252,7 +255,7 @@ int main(int argc, char **argv)
     msg.Z = z;
     msg.S = s;
     msg.buttons = btns & (0x0000FFFF); // check diffrerent datatypes
-    ROS_DEBUG_THROTTLE(10,"Pub Joy: x:%d, y:%d, z:%d, s:%d, b:" SHORT_TO_BINARY_PATTERN, msg.X, msg.Y, msg.Z, msg.S, SHORT_TO_BINARY(msg.buttons) );
+    ROS_INFO_THROTTLE(10,"Pub Joy: x:%d, y:%d, z:%d, s:%d, b:" SHORT_TO_BINARY_PATTERN, msg.X, msg.Y, msg.Z, msg.S, SHORT_TO_BINARY(msg.buttons) );
     //std::stringstream ss;
     //ss << "hello world " << count;
     msg = msg;

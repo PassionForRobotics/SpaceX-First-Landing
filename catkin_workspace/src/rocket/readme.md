@@ -79,4 +79,13 @@ Added another package from https://github.com/PassionForRobotics/ATOM_DRONE/tree
 
 Possible ssue: module 'libevdev' : $ sudo apt-get install libevdev-dev
 
+```
+Apr15 14:08] usb 1-1.1: new low-speed USB device number 4 using ehci-pci
+[  +0.126918] usb 1-1.1: New USB device found, idVendor=046d, idProduct=c215
+[  +0.000006] usb 1-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[  +0.000004] usb 1-1.1: Product: Logitech Extreme 3D
+[  +0.000003] usb 1-1.1: Manufacturer: Logitech
+[  +0.026301] input: Logitech Logitech Extreme 3D as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.0/0003:046D:C215.0004/input/input17
+[  +0.055103] logitech 0003:046D:C215.0004: input,hidraw2: USB HID v1.10 Joystick [Logitech Logitech Extreme 3D] on usb-0000:00:1a.0-1.1/input0
+```
 
