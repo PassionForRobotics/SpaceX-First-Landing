@@ -46,12 +46,12 @@ namespace gazebo
     private: void joystate_cb(const atom_esp_joy::joydata::ConstPtr& _joy_data_msg)
     {
 	this->joy_data = *_joy_data_msg;
-        this->addaccel_center = this->joy_data.S * 2.0;
+        this->addaccel_center = this->joy_data.S;
         
-      this->addaccel_side_1 = this->joy_data.X;
-      this->addaccel_side_2 = this->joy_data.Y;
-      this->addaccel_side_3 = this->joy_data.Y;
-      this->addaccel_side_4 = this->joy_data.X;   
+      this->addaccel_side_1 = this->addaccel_center - this->joy_data.X;
+      this->addaccel_side_2 = this->addaccel_center + this->joy_data.X;
+      this->addaccel_side_3 = this->addaccel_center - this->joy_data.Y;
+      this->addaccel_side_4 = this->addaccel_center + this->joy_data.Y;   
     
 	ROS_INFO_THROTTLE(5,"Joy msg received! %f %f", (float)this->joy_data.S, this->addaccel_center);
     }
