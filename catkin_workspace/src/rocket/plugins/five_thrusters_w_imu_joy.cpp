@@ -36,11 +36,11 @@ namespace gazebo
     {
       this->five_thrusts_msg = *_five_thrusts_msg;
       this->addaccel_center = this->five_thrusts_msg.thrust_center;
-      this->addaccel_side_1 = this->five_thrusts_msg.thrust_side_1;
-      this->addaccel_side_2 = this->five_thrusts_msg.thrust_side_2;
-      this->addaccel_side_3 = this->five_thrusts_msg.thrust_side_3;
-      this->addaccel_side_4 = this->five_thrusts_msg.thrust_side_4;   
-      ROS_INFO("5 thrusts msg received!");
+      this->addaccel_side_1 = this->five_thrusts_msg.thrust_side_1; // C - X (-)
+      this->addaccel_side_2 = this->five_thrusts_msg.thrust_side_2; // C + X (+)
+      this->addaccel_side_3 = this->five_thrusts_msg.thrust_side_3; // C - Y (-)
+      this->addaccel_side_4 = this->five_thrusts_msg.thrust_side_4; // C + Y (+)   
+      ROS_INFO_THROTTLE(10, "5 thrusts msg received!");
     }
 
     private: void joystate_cb(const atom_esp_joy::joydata::ConstPtr& _joy_data_msg)
@@ -53,7 +53,7 @@ namespace gazebo
       this->addaccel_side_3 = this->addaccel_center - this->joy_data.Y;
       this->addaccel_side_4 = this->addaccel_center + this->joy_data.Y;   
     
-	ROS_INFO_THROTTLE(5,"Joy msg received! %f %f", (float)this->joy_data.S, this->addaccel_center);
+	ROS_INFO_THROTTLE(10,"Joy msg received! %f %f", (float)this->joy_data.S, this->addaccel_center);
     }
 
     private: void modelstates_cb(const gazebo_msgs::ModelStates::ConstPtr& msg)
@@ -101,8 +101,8 @@ namespace gazebo
       // Store the pointer to the model
       this->model = _parent;
 
-      if( // _sdf->HasElement("right_joint")
-	   _sdf_plugin_params->HasElement("center_thruster_link")
+      if(  _sdf_plugin_params->HasElement("use_joystick")
+        && _sdf_plugin_params->HasElement("center_thruster_link")
 	&& _sdf_plugin_params->HasElement("side_thruster_1_link")
 	&& _sdf_plugin_params->HasElement("side_thruster_2_link")
 	&& _sdf_plugin_params->HasElement("side_thruster_3_link")
@@ -110,6 +110,9 @@ namespace gazebo
 	&& _sdf_plugin_params->HasElement("main_body_link")
         )
       {
+
+	      this->whether_to_use_joystick = 0;// _sdf_plugin_params->GetValueBool("use_joystick")
+
 
 	      this->body_link = this->model->GetLink(
 	      _sdf_plugin_params->GetElement("main_body_link")
@@ -160,12 +163,18 @@ namespace gazebo
       
       //ROS_INFO("%s : %s", "THRUSTER", nh_.resolveName("rocket_THRUSTER_node").c_str());
       
-      five_thrusts_command_sub = this->nh_.subscribe("rocket_joy_five_thrusts_commander_node", 100, &fivethrustersimujoy::five_thrusts_command_data_cb, this); 
+      five_thrusts_command_sub = this->nh_.subscribe("rocket_stabilization_control", 100, &fivethrustersimujoy::five_thrusts_command_data_cb, this); 
 
       model_states_sub = this->nh_.subscribe("/gazebo/model_states",100, &fivethrustersimujoy::modelstates_cb, this);
       
-      joy_state_sub = this->nh_.subscribe("/atom_joydata",100, &fivethrustersimujoy::joystate_cb, this);
-      
+      if(true == this->whether_to_use_joystick)
+      {
+      	joy_state_sub = this->nh_.subscribe("/atom_joydata",100, &fivethrustersimujoy::joystate_cb, this);
+      }
+      else
+      {
+	ROS_WARN("Joy stick sub disabled. Set <use_joystick>true.");
+      }
       rocket_info_pub = this->nh_.advertise<nav_msgs::Odometry>("/odom", 100);
       
       // Listen to the update event. This event is broadcast every
@@ -226,6 +235,8 @@ namespace gazebo
     private: gazebo::physics::LinkPtr side_2_link;
     private: gazebo::physics::LinkPtr side_3_link;
     private: gazebo::physics::LinkPtr side_4_link;
+
+    private: bool whether_to_use_joystick;
 
     private: double addaccel_center, addaccel_side_1, addaccel_side_2, addaccel_side_3, addaccel_side_4; 
     // value to given by external callers

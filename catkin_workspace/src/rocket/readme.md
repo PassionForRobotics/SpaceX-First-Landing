@@ -89,3 +89,10 @@ Apr15 14:08] usb 1-1.1: new low-speed USB device number 4 using ehci-pci
 [  +0.055103] logitech 0003:046D:C215.0004: input,hidraw2: USB HID v1.10 Joystick [Logitech Logitech Extreme 3D] on usb-0000:00:1a.0-1.1/input0
 ```
 
+
+
+
+https://www.youtube.com/watch?v=sJ6_dLutNmw
+
+
+

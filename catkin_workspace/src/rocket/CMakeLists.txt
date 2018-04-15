@@ -75,6 +75,19 @@ target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
 )
 
+#add_library(${PROJECT_NAME}_AUTO_STABILIZATION_node SHARED src/auto_stabilization.cpp)
+
+
+
+add_executable(${PROJECT_NAME}_AUTO_STABILIZATION_node src/auto_stabilization.cpp)
+
+set_target_properties(${PROJECT_NAME}_AUTO_STABILIZATION_node PROPERTIES OUTPUT_NAME node PREFIX "")
+
+target_link_libraries(${PROJECT_NAME}_AUTO_STABILIZATION_node
+  ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
+)
+
+
 add_dependencies(${PROJECT_NAME}_THRUSTER_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_THRUSTER_node ${catkin_EXPORTED_TARGETS})
 
@@ -86,6 +99,9 @@ add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_node ${catkin_EXPORTED_TARGETS}
 
 add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(${PROJECT_NAME}_AUTO_STABILIZATION_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_AUTO_STABILIZATION_node ${catkin_EXPORTED_TARGETS})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
