@@ -19,6 +19,8 @@ $ roslaunch rocket force_test.launch
 ... Note: allow world to have a model with a link
 
 
+===
+
 For single thruster
 
 $rostopic pub  /rocket_thrust_commander_node rocket/ThrustCommand "header:
@@ -30,13 +32,14 @@ $rostopic pub  /rocket_thrust_commander_node rocket/ThrustCommand "header:
 thrust: 1000.0"
 
 
-$ $ roslaunch rocket five_thrusters_test.launch 
+$ roslaunch rocket five_thrusters_test.launch 
 
 
 ... gazebo should open 
 
 ... Note: allow world to have a model with a link
 
+===
 
 For 5 thrusters 
 
@@ -50,8 +53,9 @@ thrust_side_2: 200.0
 thrust_side_3: 200.0
 thrust_side_4: 200.0"
 
+===
 
-$ $ roslaunch rocket five_thrusters_imu_test.launch 
+$ roslaunch rocket five_thrusters_imu_test.launch 
 
 ... gazebo should open 
 
@@ -74,6 +78,7 @@ and
 
 rostopic echo /odom
 
+===
 
 Added another package from https://github.com/PassionForRobotics/ATOM_DRONE/tree/master/ros/rosatom/src/atom_esp_joy
 
@@ -94,5 +99,23 @@ Apr15 14:08] usb 1-1.1: new low-speed USB device number 4 using ehci-pci
 
 https://www.youtube.com/watch?v=sJ6_dLutNmw
 
+===
 
+PID tuning might be required 
 
+$ roslaunch rocket five_thrusters_auto_stabilization.launch 
+
+PID params: 
+
+x:P y:D z:I
+
+$ rostopic pub /pid_param geometry_msgs/Vector3 "x: 10000.0
+y: 0.5
+z: 100" 
+
+setting set point:
+
+$rostopic pub /rocket_target_pos geometry_msgs/Vector3 "x: 0.0
+y: 0.0
+z: 1"
+s
