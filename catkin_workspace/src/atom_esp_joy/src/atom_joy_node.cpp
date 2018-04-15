@@ -85,6 +85,19 @@ Extreme3DProService& es = Extreme3DProService::GetInstance();
 
 atom_esp_joy::joydata joydata;
 
+
+#include <signal.h>
+
+void mySigintHandler(int sig)
+{
+  // Do some custom action.
+  // For example, publish a stop message to some other nodes.
+  
+  // All the default sigint handler does is call shutdown()
+  ROS_WARN("Joy is shuttng down ros");
+  ros::shutdown();
+}
+
 void LogitechAxes(int id, int16_t *_x, int16_t *_y, int16_t *_z, int16_t *_s, int16_t *_btns)
 {
 //#define PRINT_JOYDATA
@@ -178,7 +191,11 @@ int main(int argc, char **argv)
    atexit(onExit);
    
 // %Tag(INIT)%
-  ros::init(argc, argv, "joy_node");
+  ros::init(argc, argv, "joy_node", ros::init_options::NoSigintHandler); 
+
+  // Override the default ros sigint handler.
+  // This must be set after the first NodeHandle is created.
+  signal(SIGINT, mySigintHandler);
   
   printf("%c]0;%s%c", '\033', "JOY_ATOM_ESP", '\007');
 // %EndTag(INIT)%
