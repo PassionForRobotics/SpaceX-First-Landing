@@ -73,3 +73,9 @@ thrust_side_4: 0.0"
 and 
 
 rostopic echo /odom
+
+
+Added another package from https://github.com/PassionForRobotics/ATOM_DRONE/tree/master/ros/rosatom/src/atom_esp_joy
+
+
+
