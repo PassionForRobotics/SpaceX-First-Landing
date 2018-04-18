@@ -1,3 +1,29 @@
+
+
+$ roslaunch rocket five_thrusters_auto_stabilization_fall.launch
+
+
+$ rostopic pub /rocket_target_pos geometry_msgs/Vector3 "x: 0.0
+y: 0.0
+z: 10.0"
+
+
+$ rostopic pub /rocket_pid_param_side geometry_msgs/Vector3 "x: 50.0
+y: 0.0
+z: 0.5" 
+
+
+$ rostopic pub /rocket_pid_param_top geometry_msgs/Vector3 "x: 100.0
+y: 0.0
+z: 0.0"
+
+Then start the simulation in Gazebo
+
+
+Now latest first above
+
+===
+
  For simulating a single rocket mini booster
 
 $ pwd

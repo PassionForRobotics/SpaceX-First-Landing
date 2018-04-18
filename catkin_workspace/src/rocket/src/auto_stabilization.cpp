@@ -83,9 +83,9 @@ class _PID
 
 geometry_msgs::Vector3 g_target_pos;//(0,0,0.2);
 nav_msgs::Odometry g_input_odom;
-geometry_msgs::Vector3 g_pid_param; //(500,0,0);
-double intError = 0; // PID interative error
-float errorPlast = 0;
+geometry_msgs::Vector3 g_pid_param_top,  g_pid_param_side,  g_pid_param_front; //(500,0,0);
+//double intError = 0; // PID interative error
+//float errorPlast = 0;
 ros::Time last_time;	
 rocket::FiveThrustCommand lastReqThrust;
 
@@ -128,7 +128,7 @@ void calculateReqThrust(const nav_msgs::Odometry *odom, const geometry_msgs::Vec
 
 	lastReqThrust.thrust_center = pid_center.Update(errorP, dt);
 
-        lastReqThrust.thrust_center = lastReqThrust.thrust_center > 0 ? lastReqThrust.thrust_center : 0 ;
+        //lastReqThrust.thrust_center = lastReqThrust.thrust_center > 0 ? lastReqThrust.thrust_center : 0 ;
 
 	center_thrust = lastReqThrust.thrust_center; 
 
@@ -150,7 +150,7 @@ void calculateReqThrust(const nav_msgs::Odometry *odom, const geometry_msgs::Vec
 	
         *reqThrust = lastReqThrust;
 	last_time = curr_time;
-	errorPlast = errorP;
+	//errorPlast = errorP;
 
 	
 /*
@@ -177,23 +177,79 @@ void target_pos_cb(const geometry_msgs::Vector3 _target_pos)
 }
 
 
-void pidparam_cb(const geometry_msgs::Vector3 _pid_param)
+void pidparam_top_cb(const geometry_msgs::Vector3 _pid_param)
 {
-	g_pid_param = _pid_param;
-	pid_center.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
-	pid_side.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
-	pid_front.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
-	//pid_center.Reset();
+	g_pid_param_top = _pid_param;
+	pid_center.Update_Param(g_pid_param_top.x, g_pid_param_top.y, g_pid_param_top.z);
+	//pid_side.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
+	//pid_front.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
+	pid_side.Reset();
+	pid_front.Reset();
 	//intError = 0;
 	//errorPlast = 0;
 	last_time = ros::Time::now();	
         lastReqThrust.thrust_center = 0;
+	lastReqThrust.thrust_side_1 = 0;
+	lastReqThrust.thrust_side_2 = 0;
+	lastReqThrust.thrust_side_3 = 0;
+	lastReqThrust.thrust_side_4 = 0;
 
         std_srvs::Empty resetWorldSrv;
 	ros::service::call("/gazebo/reset_world", resetWorldSrv);
 	//reset worls and pos to the bot
         ROS_INFO("pid params received");
 }
+
+
+void pidparam_front_cb(const geometry_msgs::Vector3 _pid_param)
+{
+	g_pid_param_front = _pid_param;
+	//pid_center.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
+	//pid_side.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
+	pid_front.Update_Param(g_pid_param_front.x, g_pid_param_front.y, g_pid_param_front.z);
+	pid_center.Reset();
+	pid_side.Reset();
+	//intError = 0;
+	//errorPlast = 0;
+	last_time = ros::Time::now();	
+        lastReqThrust.thrust_center = 0;
+	lastReqThrust.thrust_side_1 = 0;
+	lastReqThrust.thrust_side_2 = 0;
+	lastReqThrust.thrust_side_3 = 0;
+	lastReqThrust.thrust_side_4 = 0;
+
+        //std_srvs::Empty resetWorldSrv;
+	//ros::service::call("/gazebo/reset_world", resetWorldSrv);
+	//reset worls and pos to the bot
+        ROS_INFO("pid params received");
+}
+
+
+void pidparam_side_cb(const geometry_msgs::Vector3 _pid_param)
+{
+	g_pid_param_side = _pid_param;
+	//pid_center.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
+	pid_side.Update_Param(g_pid_param_side.x, g_pid_param_side.y, g_pid_param_side.z);
+	//pid_front.Update_Param(g_pid_param.x, g_pid_param.z, g_pid_param.y);
+	pid_center.Reset();
+	pid_front.Reset();
+
+        pidparam_front_cb(_pid_param);
+	//intError = 0;
+	//errorPlast = 0;
+	last_time = ros::Time::now();	
+        lastReqThrust.thrust_center = 0;
+	lastReqThrust.thrust_side_1 = 0;
+	lastReqThrust.thrust_side_2 = 0;
+	lastReqThrust.thrust_side_3 = 0;
+	lastReqThrust.thrust_side_4 = 0;
+
+        std_srvs::Empty resetWorldSrv;
+	ros::service::call("/gazebo/reset_world", resetWorldSrv);
+	//reset worls and pos to the bot
+        ROS_INFO("pid params received");
+}
+
 
 void odom_cb(const nav_msgs::Odometry _input_odom)
 {
@@ -213,9 +269,9 @@ int main(int argc, char **argv)
   g_target_pos.y = 0;
   g_target_pos.z = 5;
 
-  g_pid_param.x = 35;
-  g_pid_param.z = 0.01;
-  g_pid_param.y = 2;
+  //g_pid_param.x = 35;
+  //g_pid_param.z = 0.01;
+  //g_pid_param.y = 2;
 
   ros::NodeHandle nh_;
   
@@ -225,7 +281,9 @@ int main(int argc, char **argv)
  
   ros::Subscriber odom_sub = nh_.subscribe("/odom", 100, odom_cb); 
   
-  ros::Subscriber pidparam_sub = nh_.subscribe("pid_param", 100, pidparam_cb); 
+  ros::Subscriber pidparam_top_sub = nh_.subscribe("rocket_pid_param_top", 10, pidparam_top_cb); 
+  ros::Subscriber pidparam_side_sub = nh_.subscribe("rocket_pid_param_side", 10, pidparam_side_cb); 
+  //ros::Subscriber pidparam_front_sub = nh_.subscribe("rocket_pid_param_front", 10, pidparam_front_cb); 
 
          
   ros::Publisher rocket_5_thrusts_pub = nh_.advertise<rocket::FiveThrustCommand>("rocket_stabilization_control", 100);

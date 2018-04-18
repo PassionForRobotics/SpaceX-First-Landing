@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find rocket)/worlds/five_thrusters_auto_stabilization_fall.world"/>
+    <arg name="paused" value="true"/>
+    <!-- more default parameters can be changed here -->
+  </include>
+
+  <!-- rosrun atom_esp_joy atom_joy_node -->
+  <!--node name="atom_joy_node" type="node" pkg="atom_esp_joy"  output="screen"/-->
+
+  <!-- rosrun atom_esp_joy atom_joy_node -->
+  <node name="auto_stabilization_node" type="node" pkg="rocket"  output="screen"/>
+
+</launch>
+
+<!-- at the end of the launch cmd extra_gazebo_args:="- -verbose" -->
