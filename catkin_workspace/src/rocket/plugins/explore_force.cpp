@@ -77,7 +77,7 @@ namespace gazebo
       {      
 	//ROS_DEBUG_THROTTLE(5,"CONTINUOUS THRUST IS BEING APPLIED!!");
         this->link->AddRelativeForce(ignition::math::Vector3d(0, 0
-            , this->link->GetInertial()->GetMass()*addaccel)); // continuous 18 doesn't 20 flies
+            , /* this->link->GetInertial()->GetMass()* */ addaccel)); // continuous 18 doesn't 20 flies
         //addaccel = 0.0; // non-lacthed  // set a param for <latch> true or false 
       }
 

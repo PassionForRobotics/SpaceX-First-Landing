@@ -180,19 +180,19 @@ namespace gazebo
 
 		ROS_DEBUG_THROTTLE(5,"CONTINUOUS THRUSTS ARE BEING APPLIED!!");
 		this->center_link->AddRelativeForce(ignition::math::Vector3d(0, 0
-		    , this->center_link->GetInertial()->GetMass()*addaccel_center)); 
+		    , /* this->center_link->GetInertial()->GetMass()* */ addaccel_center)); 
 
 		this->side_1_link->AddRelativeForce(ignition::math::Vector3d(0, 0
-		    , this->side_1_link->GetInertial()->GetMass()*addaccel_side_1));
+		    , /* this->side_1_link->GetInertial()->GetMass()* */ addaccel_side_1));
 
 		this->side_2_link->AddRelativeForce(ignition::math::Vector3d(0, 0
-		    , this->side_2_link->GetInertial()->GetMass()*addaccel_side_2));
+		    , /* this->side_2_link->GetInertial()->GetMass()* */ addaccel_side_2));
 
 		this->side_3_link->AddRelativeForce(ignition::math::Vector3d(0, 0
-		    , this->side_3_link->GetInertial()->GetMass()*addaccel_side_3));
+		    , /* this->side_3_link->GetInertial()->GetMass()* */ addaccel_side_3));
 
 		this->side_4_link->AddRelativeForce(ignition::math::Vector3d(0, 0
-		    , this->side_4_link->GetInertial()->GetMass()*addaccel_side_4));
+		    , /* this->side_4_link->GetInertial()->GetMass()* */ addaccel_side_4));
 
 	
 

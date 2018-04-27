@@ -87,9 +87,9 @@ geometry_msgs::Vector3 g_pid_param_top,  g_pid_param_side,  g_pid_param_front; /
 //double intError = 0; // PID interative error
 //float errorPlast = 0;
 ros::Time last_time;	
-rocket::FiveThrustCommand lastReqThrust;
+rocket::FiveThrustCommand g_LastReqThrust;
 
-_PID pid_center(35, 0.01, 2);
+_PID pid_center(150, 0.2, 1);
 _PID pid_side(35, 0.01, 2);
 _PID pid_front(35, 0.01, 2);
 	
@@ -110,45 +110,70 @@ void calculateReqThrust(const nav_msgs::Odometry *odom, const geometry_msgs::Vec
         float front_plus_pos  = odom->pose.pose.position.y;
         float center_plus_pos = odom->pose.pose.position.z;
 
+        float right_vel  = odom->twist.twist.linear.x;
+        float front_vel  = odom->twist.twist.linear.y;
+        float center_vel = odom->twist.twist.linear.z;
+
         tf::Quaternion q(odom->pose.pose.orientation.x , odom->pose.pose.orientation.y, odom->pose.pose.orientation.z, odom->pose.pose.orientation.w);
 	double roll, pitch, yaw;
 	tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
 
-	ROS_INFO_THROTTLE(1, "%2.3f, %2.3f, %2.3f", roll, pitch, yaw); 
+	ROS_INFO_THROTTLE(1, "%2.3f, %2.3f, %2.3f, %2.3f, %2.3f, %2.3f", roll, pitch, yaw, right_vel, front_vel, center_vel); 
 
         float right_plus_target  = targetPos->x;
         float front_plus_target  = targetPos->y;
         float center_plus_target = targetPos->z;
 	//gazebo::common::Time
 	ros::Time curr_time = ros::Time::now();
-	
-	float errorP = center_plus_target - center_plus_pos;
+
+
+// https://www.ode-wiki.org/wiki/index.php?title=HOWTO_thrust_control_logic
+// Owen Jones
+	const ignition::math::Vector3<double> LOOKAHEAD(0.0f, 0.0f, (odom->twist.twist.linear.z>=0?1:-1)*g_pid_param_top.x);
+	const ignition::math::Vector3<double> SENSITIVITY(0.0f, 0.0f, g_pid_param_top.y);
+
+	ignition::math::Vector3<double> future_pose(0.0f, 0.0f, 0.0f);
+	ignition::math::Vector3<double> current_pose(odom->pose.pose.position.x, odom->pose.pose.position.y, odom->pose.pose.position.z);
+	ignition::math::Vector3<double> target_pose(targetPos->x, targetPos->y, targetPos->z);
+	ignition::math::Vector3<double> current_vel(odom->twist.twist.linear.x, odom->twist.twist.linear.y, odom->twist.twist.linear.z);
+	ignition::math::Vector3<double> applicable_force(0.0f, 0.0f, 0.0f);
+
+	future_pose = current_pose + LOOKAHEAD * current_vel;
+	applicable_force = (future_pose - target_pose) * SENSITIVITY;
+	g_LastReqThrust.thrust_center = applicable_force.Z();
+         
+	//float errorP = center_plus_target - center_plus_pos;
         
 	float dt = (curr_time-last_time).toSec();
 
-	lastReqThrust.thrust_center = pid_center.Update(errorP, dt);
+	//g_LastReqThrust.thrust_center = pid_center.Update(errorP, dt);
 
-        //lastReqThrust.thrust_center = lastReqThrust.thrust_center > 0 ? lastReqThrust.thrust_center : 0 ;
+        g_LastReqThrust.thrust_center = g_LastReqThrust.thrust_center > 0 ? g_LastReqThrust.thrust_center : 0 ;
+        g_LastReqThrust.thrust_center = g_LastReqThrust.thrust_center > g_pid_param_top.z ? g_pid_param_top.z : g_LastReqThrust.thrust_center ;
+        
+	center_thrust = g_LastReqThrust.thrust_center; 
 
-	center_thrust = lastReqThrust.thrust_center; 
 
+	//roll applicable_force.Y(); //
+	g_LastReqThrust.thrust_side_1 = pid_front.Update(-roll, dt);
+	g_LastReqThrust.thrust_side_2 = -g_LastReqThrust.thrust_side_1; //pid_front.Update(roll, dt);
 
-	//roll
-	lastReqThrust.thrust_side_1 = pid_front.Update(-roll, dt);
-	lastReqThrust.thrust_side_2 = pid_front.Update(roll, dt);
+        g_LastReqThrust.thrust_side_1 = g_LastReqThrust.thrust_side_1 > 0 ? g_LastReqThrust.thrust_side_1 : 0 ;
+        g_LastReqThrust.thrust_side_2 = g_LastReqThrust.thrust_side_2 > 0 ? g_LastReqThrust.thrust_side_2 : 0 ;
 
-        lastReqThrust.thrust_side_1 = lastReqThrust.thrust_side_1 > 0 ? lastReqThrust.thrust_side_1 : 0 ;
-        lastReqThrust.thrust_side_2 = lastReqThrust.thrust_side_2 > 0 ? lastReqThrust.thrust_side_2 : 0 ;
+	//pitch // applicable_force.X(); //
+	g_LastReqThrust.thrust_side_3 = pid_side.Update(-pitch, dt);
+	g_LastReqThrust.thrust_side_4 = -g_LastReqThrust.thrust_side_3 ;//pid_side.Update(pitch, dt);
 
-	//pitch
-	lastReqThrust.thrust_side_3 = pid_side.Update(-pitch, dt);
-	lastReqThrust.thrust_side_4 = pid_side.Update(pitch, dt);
-
-        lastReqThrust.thrust_side_3 = lastReqThrust.thrust_side_3 > 0 ? lastReqThrust.thrust_side_3 : 0 ;
-        lastReqThrust.thrust_side_4 = lastReqThrust.thrust_side_4 > 0 ? lastReqThrust.thrust_side_4 : 0 ;
-
+        g_LastReqThrust.thrust_side_3 = g_LastReqThrust.thrust_side_3 > 0 ? g_LastReqThrust.thrust_side_3 : 0 ;
+        g_LastReqThrust.thrust_side_4 = g_LastReqThrust.thrust_side_4 > 0 ? g_LastReqThrust.thrust_side_4 : 0 ;
 	
-        *reqThrust = lastReqThrust;
+	g_LastReqThrust.thrust_side_1 = g_LastReqThrust.thrust_side_1 < 20 ? g_LastReqThrust.thrust_side_1 : 20; 
+	g_LastReqThrust.thrust_side_2 = g_LastReqThrust.thrust_side_2 < 20 ? g_LastReqThrust.thrust_side_2: 20; 
+	g_LastReqThrust.thrust_side_3 = g_LastReqThrust.thrust_side_3 < 20 ? g_LastReqThrust.thrust_side_3 : 20;  
+	g_LastReqThrust.thrust_side_4 = g_LastReqThrust.thrust_side_4 < 20 ? g_LastReqThrust.thrust_side_4 :20;
+ 	
+        *reqThrust = g_LastReqThrust;
 	last_time = curr_time;
 	//errorPlast = errorP;
 
@@ -188,11 +213,11 @@ void pidparam_top_cb(const geometry_msgs::Vector3 _pid_param)
 	//intError = 0;
 	//errorPlast = 0;
 	last_time = ros::Time::now();	
-        lastReqThrust.thrust_center = 0;
-	lastReqThrust.thrust_side_1 = 0;
-	lastReqThrust.thrust_side_2 = 0;
-	lastReqThrust.thrust_side_3 = 0;
-	lastReqThrust.thrust_side_4 = 0;
+        g_LastReqThrust.thrust_center = 0;
+	g_LastReqThrust.thrust_side_1 = 0;
+	g_LastReqThrust.thrust_side_2 = 0;
+	g_LastReqThrust.thrust_side_3 = 0;
+	g_LastReqThrust.thrust_side_4 = 0;
 
         std_srvs::Empty resetWorldSrv;
 	ros::service::call("/gazebo/reset_world", resetWorldSrv);
@@ -212,11 +237,11 @@ void pidparam_front_cb(const geometry_msgs::Vector3 _pid_param)
 	//intError = 0;
 	//errorPlast = 0;
 	last_time = ros::Time::now();	
-        lastReqThrust.thrust_center = 0;
-	lastReqThrust.thrust_side_1 = 0;
-	lastReqThrust.thrust_side_2 = 0;
-	lastReqThrust.thrust_side_3 = 0;
-	lastReqThrust.thrust_side_4 = 0;
+        g_LastReqThrust.thrust_center = 0;
+	g_LastReqThrust.thrust_side_1 = 0;
+	g_LastReqThrust.thrust_side_2 = 0;
+	g_LastReqThrust.thrust_side_3 = 0;
+	g_LastReqThrust.thrust_side_4 = 0;
 
         //std_srvs::Empty resetWorldSrv;
 	//ros::service::call("/gazebo/reset_world", resetWorldSrv);
@@ -238,11 +263,11 @@ void pidparam_side_cb(const geometry_msgs::Vector3 _pid_param)
 	//intError = 0;
 	//errorPlast = 0;
 	last_time = ros::Time::now();	
-        lastReqThrust.thrust_center = 0;
-	lastReqThrust.thrust_side_1 = 0;
-	lastReqThrust.thrust_side_2 = 0;
-	lastReqThrust.thrust_side_3 = 0;
-	lastReqThrust.thrust_side_4 = 0;
+        g_LastReqThrust.thrust_center = 0;
+	g_LastReqThrust.thrust_side_1 = 0;
+	g_LastReqThrust.thrust_side_2 = 0;
+	g_LastReqThrust.thrust_side_3 = 0;
+	g_LastReqThrust.thrust_side_4 = 0;
 
         std_srvs::Empty resetWorldSrv;
 	ros::service::call("/gazebo/reset_world", resetWorldSrv);
@@ -267,11 +292,11 @@ int main(int argc, char **argv)
 
   g_target_pos.x = 0;
   g_target_pos.y = 0;
-  g_target_pos.z = 5;
+  g_target_pos.z = 20;
 
-  //g_pid_param.x = 35;
-  //g_pid_param.z = 0.01;
-  //g_pid_param.y = 2;
+  g_pid_param_top.x = 0.10;
+  g_pid_param_top.y = 0.10;
+  g_pid_param_top.z = 80.0;
 
   ros::NodeHandle nh_;
   
@@ -294,7 +319,7 @@ int main(int argc, char **argv)
   
   while(ros::ok())
   {
-    	static rocket::FiveThrustCommand five_thrusts;
+    	rocket::FiveThrustCommand five_thrusts;
         calculateReqThrust(&g_input_odom, &g_target_pos, &five_thrusts);
 	rocket_5_thrusts_pub.publish(five_thrusts);
 

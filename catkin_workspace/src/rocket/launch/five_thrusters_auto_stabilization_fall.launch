@@ -4,6 +4,7 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find rocket)/worlds/five_thrusters_auto_stabilization_fall.world"/>
     <arg name="paused" value="true"/>
+    <arg name="verbose" value="true"/>
     <!-- more default parameters can be changed here -->
   </include>
 

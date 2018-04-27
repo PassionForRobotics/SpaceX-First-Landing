@@ -1,4 +1,18 @@
 
+$ roslaunch rocket five_thrusters_auto_stabilization_fall.launch
+
+Now use only 
+
+$ rostopic pub /rocket_pid_param_top geometry_msgs/Vector3 "x: 1.0
+y: 1.0
+z: 80.0"
+
+x for time LOOKAHEAD, y for thrust factor as SENSITIVITY and z for thrust limit
+
+Buggy : yet to understand
+
+===
+
 
 $ roslaunch rocket five_thrusters_auto_stabilization_fall.launch
 
@@ -19,6 +33,7 @@ z: 0.0"
 
 Then start the simulation in Gazebo
 
+Good PID manual tuning practice
 
 Now latest first above
 
