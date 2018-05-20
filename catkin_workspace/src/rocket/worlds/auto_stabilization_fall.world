@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+   
+    <model name="five_thrusters">
+       <pose>0 0 20 0 0 0</pose>
+      <include>
+        <uri>model://cockpit</uri>
+      </include>
+ 
+     <plugin name="thrusters" filename="librocket_5_THRUSTERS_IMU_JOY_node.so">
+	<use_joystick>0</use_joystick>
+	<main_body_link>cockpit::link_cockpit</main_body_link>
+	<center_thruster_link>cockpit::link_cockpit</center_thruster_link>     
+	<side_thruster_1_link>cockpit::link_th1</side_thruster_1_link>     
+	<side_thruster_2_link>cockpit::link_th2</side_thruster_2_link>     
+	<side_thruster_3_link>cockpit::link_th3</side_thruster_3_link>     
+	<side_thruster_4_link>cockpit::link_th4</side_thruster_4_link>     
+	 
+	 
+     </plugin>
+
+    </model>
+ 
+  </world>
+</sdf>

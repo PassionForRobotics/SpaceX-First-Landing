@@ -129,7 +129,7 @@ void calculateReqThrust(const nav_msgs::Odometry *odom, const geometry_msgs::Vec
 
 // https://www.ode-wiki.org/wiki/index.php?title=HOWTO_thrust_control_logic
 // Owen Jones
-	const ignition::math::Vector3<double> LOOKAHEAD(0.0f, 0.0f, (odom->twist.twist.linear.z>=0?1:-1)*g_pid_param_top.x);
+	const ignition::math::Vector3<double> LOOKAHEAD(0.0f, 0.0f, /*(odom->twist.twist.linear.z>=0?1:-1)*/g_pid_param_top.x);
 	const ignition::math::Vector3<double> SENSITIVITY(0.0f, 0.0f, g_pid_param_top.y);
 
 	ignition::math::Vector3<double> future_pose(0.0f, 0.0f, 0.0f);
