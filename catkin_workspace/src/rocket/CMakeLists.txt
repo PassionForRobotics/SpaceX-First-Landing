@@ -31,6 +31,7 @@ find_package(Threads REQUIRED)
 add_message_files(
    FILES
    ThrustCommand.msg
+   ThrustCmd.msg
    FiveThrustCommand.msg
  )
 
@@ -50,7 +51,26 @@ link_directories(
   ${GAZEBO_LIBRARY_DIRS} 
 )
 
+add_library(${PROJECT_NAME}_MULTI_THRUSTER_node SHARED plugins/explore_thrust.cpp)
+
+add_dependencies(${PROJECT_NAME}_MULTI_THRUSTER_node ${PROJECT_NAME}_generate_messages_cpp)
+
+target_link_libraries(${PROJECT_NAME}_MULTI_THRUSTER_node
+  ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
+)
+
+
+add_executable(${PROJECT_NAME}_TEST_MULTI_THRUSTER_node plugins/test_thrust.cpp)
+
+add_dependencies(${PROJECT_NAME}_TEST_MULTI_THRUSTER_node ${PROJECT_NAME}_generate_messages_cpp)
+
+target_link_libraries(${PROJECT_NAME}_TEST_MULTI_THRUSTER_node
+  ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
+)
+
+
 add_library(${PROJECT_NAME}_THRUSTER_node SHARED plugins/explore_force.cpp)
+add_dependencies(${PROJECT_NAME}_THRUSTER_node ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(${PROJECT_NAME}_THRUSTER_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
@@ -58,18 +78,21 @@ target_link_libraries(${PROJECT_NAME}_THRUSTER_node
 
 
 add_library(${PROJECT_NAME}_5_THRUSTERS_node SHARED plugins/five_thrusters.cpp)
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_node ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
 )
 
 add_library(${PROJECT_NAME}_5_THRUSTERS_IMU_node SHARED plugins/five_thrusters_w_imu.cpp)
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_node ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_IMU_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
 )
 
 add_library(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node SHARED plugins/five_thrusters_w_imu_joy.cpp)
+add_dependencies(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(${PROJECT_NAME}_5_THRUSTERS_IMU_JOY_node
   ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES}
