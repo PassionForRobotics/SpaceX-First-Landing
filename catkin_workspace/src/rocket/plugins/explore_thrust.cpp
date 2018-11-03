@@ -141,11 +141,11 @@ namespace gazebo
 
       if(ros::ok())
       {
-        ROS_INFO("THRUSTER LOADED!!");
+        ROS_INFO("MULTI THRUSTER LOADED!!");
       }
       else
       {
-       ROS_INFO("THRUSTER NOT LOADED!!");
+       ROS_INFO("MULTI THRUSTER NOT LOADED!!");
       }
     }
 
@@ -158,7 +158,21 @@ namespace gazebo
       if(NULL!=link)
       {
 
+        double dt;
+        static gazebo::common::Time current_time = this->world_->SimTime();// gazebo::common::Time( ros::Time::now().toSec() );// gazebo::physics::get_world("default")->SimTime();
+        static gazebo::common::Time last_time = current_time;//gazebo::physics::get_world("default")->SimTime();
+
+        current_time = this->world_->SimTime();
+
+        dt = (current_time-last_time).Double();
+
+        //this->link->SetLinearVel(this->thrust_);
+        //this->link->SetLinearVel(this->thrust_/dt);
         this->link->SetForce(this->thrust_);
+
+        ROS_INFO_THROTTLE(0.2, "explore_thrust.cpp %f %f", this->thrust_.Z(), dt);
+
+        last_time = current_time;
 
         ignition::math::Pose3d p = this->model->WorldPose();
         nav_msgs::Odometry odom;
@@ -174,9 +188,9 @@ namespace gazebo
         ignition::math::Vector3d v = this->model->WorldLinearVel();
         ignition::math::Vector3d a = this->model->WorldLinearAccel();
         geometry_msgs::Twist t;
-        t.linear.x = a.X();
-        t.linear.y = a.Y();
-        t.linear.z = a.Z();
+        t.linear.x = v.X();
+        t.linear.y = v.Y();
+        t.linear.z = v.Z();
 
         this->twist_.publish(t);
 
